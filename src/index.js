@@ -259,19 +259,14 @@ function handleCommand(command) {
                 readStream.pipe(brotliStream).pipe(writeStream);
 
                 writeStream.on('finish', () => {
-                    console.log(
-                        `File "${absolutePath}" compressed to "${compressedFilePath}" successfully.`
-                    );
                     // Additional operations or checks can be added here
 
                     result = true;
                 });
             } else {
-                console.log(`File "${absolutePath}" not found.`);
                 result = false;
             }
         } catch (error) {
-            console.error(error);
             result = false;
         }
     } else if (command.startsWith('decompress')) {
@@ -290,13 +285,9 @@ function handleCommand(command) {
             readStream.pipe(brotliStream).pipe(writeStream);
 
             writeStream.on('finish', () => {
-                console.log(
-                    `File "${filePath}" decompressed to "${destinationPath}" successfully.`
-                );
                 result = true;
             });
         } catch (error) {
-            console.error('Error during decompression:', error.message);
             result = false;
         }
     } else {
