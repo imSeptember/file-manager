@@ -271,23 +271,45 @@ function handleCommand(command) {
         }
     } else if (command.startsWith('decompress')) {
         try {
-            const filePath = command.slice(10).trim();
-            const destinationPath =
-                args[args.indexOf('path_to_destination') + 1] || '.'; // Default to current directory if not provided
+            const filePathAndDestination = command.slice(10).trim();
+            const [filePath, destinationPath] =
+                filePathAndDestination.split(/\s+/);
 
-            const readStream = fs.createReadStream(filePath);
-            const writeStream = fs.createWriteStream(
-                path.join(process.cwd(), destinationPath)
-            );
-            const brotliStream = zlib.createBrotliDecompress();
+            const compressedFilePath = path.resolve(process.cwd(), filePath);
 
-            // Pipe the read stream through the Brotli decompression stream to the write stream
-            readStream.pipe(brotliStream).pipe(writeStream);
+            // Check if the compressed file exists
+            if (fs.existsSync(compressedFilePath)) {
+                const decompressedFilePath = path.resolve(
+                    process.cwd(),
+                    destinationPath,
+                    path.basename(filePath, '.br')
+                );
 
-            writeStream.on('finish', () => {
-                result = true;
-            });
+                const readStream = fs.createReadStream(compressedFilePath);
+                const writeStream = fs.createWriteStream(decompressedFilePath);
+
+                const brotliStream = zlib.createBrotliDecompress();
+
+                // Pipe the read stream through the Brotli decompression stream to the write stream
+                readStream.pipe(brotliStream).pipe(writeStream);
+
+                writeStream.on('finish', () => {
+                    console.log(
+                        `File "${compressedFilePath}" decompressed to "${decompressedFilePath}" successfully.`
+                    );
+
+                    // Additional operations or checks can be added here
+
+                    result = true;
+                });
+            } else {
+                console.log(
+                    `Compressed file "${compressedFilePath}" not found.`
+                );
+                result = false;
+            }
         } catch (error) {
+            console.error(error);
             result = false;
         }
     } else {
