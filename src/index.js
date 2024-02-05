@@ -294,18 +294,11 @@ function handleCommand(command) {
                 readStream.pipe(brotliStream).pipe(writeStream);
 
                 writeStream.on('finish', () => {
-                    console.log(
-                        `File "${compressedFilePath}" decompressed to "${decompressedFilePath}" successfully.`
-                    );
-
                     // Additional operations or checks can be added here
 
                     result = true;
                 });
             } else {
-                console.log(
-                    `Compressed file "${compressedFilePath}" not found.`
-                );
                 result = false;
             }
         } catch (error) {
